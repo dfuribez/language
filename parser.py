@@ -30,16 +30,12 @@ class Parser:
             method = self.eat(TokenTypes.IDENT).value
 
             self.eat(TokenTypes.LPAREN)
-            args: list[str] = []
+            args: list = []
 
             while self.current().type != TokenTypes.RPAREN:
                 tok = self.current()
-                if tok.type == TokenTypes.STRING:
-                    args.append(tok.value[1:-1])
-                    self.pos += 1
-                    continue
-                if tok.type == TokenTypes.NUMBER:
-                    args.append(float(tok.value))
+                if tok.type in (TokenTypes.STRING, TokenTypes.NUMBER):
+                    args.append(tok)
                     self.pos += 1
                     continue
                 elif tok.type == TokenTypes.COMMA:

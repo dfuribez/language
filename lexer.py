@@ -51,7 +51,11 @@ def tokenize(code: str) -> list[Token]:
                 log("[+] Matched:", token_type, " -> ", value, f"({len(value)})")
                 c += len(value)
 
+                if token_type == TokenTypes.STRING:
+                    value = value[1:-1]
+
                 tokens.append(Token(token_type, value))
+
                 break
         else:
             raise Exception(f"Unexpected character: {chunk[0]}")
