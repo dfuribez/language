@@ -7,6 +7,7 @@ class Parser:
     def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
         self.pos: int = 0
+        self.filters: list = list()
 
     def current(self) -> Token:
         return self.tokens[self.pos]
@@ -23,7 +24,6 @@ class Parser:
 
     def parse(self):
         field = self.eat(TokenTypes.IDENT).value
-        print(field)
         while self.pos < len(self.tokens):
             self.eat(TokenTypes.DOT)
             method = self.eat(TokenTypes.IDENT).value
@@ -33,19 +33,26 @@ class Parser:
 
             while self.current().type != TokenTypes.RPAREN:
                 tok = self.current()
-                if tok.type in (TokenTypes.STRING, TokenTypes.NUMBER):
-                    args.append(tok.value)
+                if tok.type == TokenTypes.STRING:
+                    args.append(tok.value[1:-1])
                     self.pos += 1
+                    continue
+                if tok.type == TokenTypes.NUMBER:
+                    args.append(float(tok.value))
+                    self.pos += 1
+                    continue
                 elif tok.type == TokenTypes.COMMA:
                     self.pos += 1
+                    continue
                 else:
-                    raise Exception(f"Unexpected token: {tok}")
+                    raise Exception(f"Unexpected token: {tok.type} -> {self.tokens}")
 
             self.eat(TokenTypes.RPAREN)
-            print(f"{method}({args})")
+            self.filters.append({"method": method, "args": args, "field": field})
+        return self.filters
 
     def look_ahead(self):
-        pass
+        return self.tokens[self.pos + 1]
 
 
 if __name__ == "__main__":
@@ -58,4 +65,4 @@ if __name__ == "__main__":
     tokens = tokenize(CODE)
 
     p = Parser(tokens)
-    p.parse()
+    print(p.parse())
