@@ -4,7 +4,7 @@ from my_token import Token
 from token_types import TokenTypes
 
 PARAMS = [
-    (TokenTypes.OPERAND, re.compile("^(or|and)\b", re.IGNORECASE)),
+    (TokenTypes.OPERAND, re.compile(r"^(or|and)\b", re.IGNORECASE)),
     (TokenTypes.IDENT, re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)")),
     (TokenTypes.DOT, re.compile(r"^(\.)")),
     (TokenTypes.LPAREN, re.compile(r"^(\()")),
@@ -13,6 +13,8 @@ PARAMS = [
     (TokenTypes.COMMA, re.compile(r"^(,)")),
     (TokenTypes.NUMBER, re.compile(r"^(\d+(\.\d+)?)")),
 ]
+
+COMMENT = re.compile(r"^(\s*#.*)$", re.MULTILINE)
 
 
 def log(*params) -> None:
@@ -24,13 +26,18 @@ def tokenize(code: str) -> list[Token]:
     tokens: list[Token] = []
 
     code = code.strip()
-
     c: int = 0
+
     while c < len(code):
         chunk = code[c:]
 
-        if chunk[0].isspace() or chunk[0] == ("\n"):
+        if chunk[0].isspace():
             c += 1
+            continue
+
+        comment = re.match(COMMENT, chunk)
+        if comment is not None:
+            c += len(comment.group(1))
             continue
 
         for token_type, pattern in PARAMS:
@@ -53,6 +60,7 @@ def tokenize(code: str) -> list[Token]:
 
 
 DEBUG = 0
+
 
 if __name__ == "__main__":
     CODE = """url.contains("test1" and "test2" or "sad").gt(12).lt(0.234)"""

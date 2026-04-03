@@ -1,3 +1,4 @@
+from filters import Filter
 from lexer import tokenize
 from my_token import Token
 from token_types import TokenTypes
@@ -48,7 +49,7 @@ class Parser:
                     raise Exception(f"Unexpected token: {tok.type} -> {self.tokens}")
 
             self.eat(TokenTypes.RPAREN)
-            self.filters.append({"method": method, "args": args, "field": field})
+            self.filters.append(Filter(method, args, field))
         return self.filters
 
     def look_ahead(self):

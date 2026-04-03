@@ -1,26 +1,30 @@
+from filters import Filter
 from lexer import tokenize
 from parser import Parser
 
 
 class Interpreter:
-    def __init__(self) -> None:
-        self.filtered = {}
+    def interpret(self, data, filters: list[Filter]):
+        for filter in filters:
+            if filter.name == "contains":
+                data = self.contains(data, filter.field, filter.args)
 
-    def contains(self, object: dict, key: str, *args):
-        self.__check_data(object, key)
+        return data
+
+    def contains(self, object: dict, key: str, args):
+        filtered = self.__check_data(object, key)
         for arg in args:
             for data in object[key]:
                 if arg in data["name"]:
-                    self.filtered[key].append(data)
+                    filtered.append(data)
 
-        return self
+        return {key: filtered}
 
     def __check_data(self, data: dict, key: str):
         if key not in data:
             raise Exception(f"Not {key} in provided data")
 
-        if key not in self.filtered:
-            self.filtered[key] = []
+        return []
 
     def __repr__(self) -> str:
         return f"Filtered<{self.filtered}>"
@@ -38,12 +42,16 @@ if __name__ == "__main__":
     }
 
     CODE = """
-    url
-    .contains("test1", "test2", "sad")
+    url2
+    .contains("a")
+    #.contains("it")
     .gt(1.2)
     .lt(0234)"""
-    print(CODE)
+    # print(CODE)
     tokens = tokenize(CODE)
 
     p = Parser(tokens)
-    print(p.parse())
+    filters = p.parse()
+
+    i = Interpreter()
+    print(i.interpret(data, filters))
