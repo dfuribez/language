@@ -4,6 +4,8 @@ from my_token import Token
 from token_types import TokenTypes
 
 PARAMS = [
+    (TokenTypes.END, re.compile(r"^(\n+[^\.])")),
+    (TokenTypes.END, re.compile(r"^(,\s*[^\.])")),
     (TokenTypes.OPERAND, re.compile(r"^(or|and)\b", re.IGNORECASE)),
     (TokenTypes.IDENT, re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)")),
     (TokenTypes.DOT, re.compile(r"^(\.)")),
@@ -13,6 +15,7 @@ PARAMS = [
     (TokenTypes.COMMA, re.compile(r"^(,)")),
     (TokenTypes.NUMBER, re.compile(r"^(\d+(\.\d+)?)")),
 ]
+
 
 COMMENT = re.compile(r"^(\s*#.*)$", re.MULTILINE)
 
@@ -31,7 +34,7 @@ def tokenize(code: str) -> list[Token]:
     while c < len(code):
         chunk = code[c:]
 
-        if chunk[0].isspace():
+        if chunk[0] == " ":
             c += 1
             continue
 
@@ -53,12 +56,17 @@ def tokenize(code: str) -> list[Token]:
 
                 if token_type == TokenTypes.STRING:
                     value = value[1:-1]
+                if token_type == TokenTypes.END:
+                    value = "END"
 
                 tokens.append(Token(token_type, value))
 
                 break
         else:
             raise Exception(f"Unexpected character: {chunk[0]}")
+
+    if tokens[-1].type != TokenTypes.END:
+        tokens.append(Token(TokenTypes.END, "end"))
 
     return tokens
 
@@ -67,6 +75,12 @@ DEBUG = 0
 
 
 if __name__ == "__main__":
-    CODE = """url.contains("test1" and "test2" or "sad").gt(12).lt(0.234)"""
+    CODE = """
+
+    url
+        .contains("test1" and "test2" or "sad")
+        .gt(12).lt(0.234)
+    asd.contains("sad")"""
     print(CODE)
-    print(tokenize(CODE))
+    for x in tokenize(CODE):
+        print(x)
