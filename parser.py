@@ -64,7 +64,7 @@ class Parser:
             if tok.type == TokenType.COMMA:
                 self.pos += 1
             elif tok.type in (TokenType.STRING, TokenType.NUMBER):
-                args.append(tok.value)
+                args.append(tok)
                 self.pos += 1
             else:
                 raise Exception(f"args: Unexpected token: {tok.type}")
