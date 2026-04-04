@@ -4,16 +4,15 @@ from my_token import Token
 from token_types import TokenTypes
 
 PARAMS = [
-    (TokenTypes.END, re.compile(r"^(\n+[^\.])")),
-    (TokenTypes.END, re.compile(r"^(,\s*[^\.])")),
-    (TokenTypes.OPERAND, re.compile(r"^(or|and)\b", re.IGNORECASE)),
-    (TokenTypes.IDENT, re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)")),
-    (TokenTypes.DOT, re.compile(r"^(\.)")),
-    (TokenTypes.LPAREN, re.compile(r"^(\()")),
-    (TokenTypes.RPAREN, re.compile(r"^(\))")),
-    (TokenTypes.STRING, re.compile(r"^([\"'][^\"']+[\"'])")),
-    (TokenTypes.COMMA, re.compile(r"^(,)")),
-    (TokenTypes.NUMBER, re.compile(r"^(\d+(\.\d+)?)")),
+    (TokenTypes.NEWLINE, re.compile(r"^(\n+)", re.MULTILINE), "NEWLINE"),
+    (TokenTypes.OPERAND, re.compile(r"^(or|and)\b", re.IGNORECASE), None),
+    (TokenTypes.IDENT, re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)"), None),
+    (TokenTypes.DOT, re.compile(r"^(\.)"), "DOT"),
+    (TokenTypes.LPAREN, re.compile(r"^(\()"), None),
+    (TokenTypes.RPAREN, re.compile(r"^(\))"), None),
+    (TokenTypes.STRING, re.compile(r"^([\"'][^\"']+[\"'])"), None),
+    (TokenTypes.COMMA, re.compile(r"^(,)"), None),
+    (TokenTypes.NUMBER, re.compile(r"^(\d+(\.\d+)?)"), None),
 ]
 
 
@@ -34,7 +33,7 @@ def tokenize(code: str) -> list[Token]:
     while c < len(code):
         chunk = code[c:]
 
-        if chunk[0] == " ":
+        if chunk[0] in (" ", "\t"):
             c += 1
             continue
 
@@ -43,7 +42,7 @@ def tokenize(code: str) -> list[Token]:
             c += len(comment.group(1))
             continue
 
-        for token_type, pattern in PARAMS:
+        for token_type, pattern, replace in PARAMS:
             if not pattern:
                 continue
 
@@ -56,17 +55,14 @@ def tokenize(code: str) -> list[Token]:
 
                 if token_type == TokenTypes.STRING:
                     value = value[1:-1]
-                if token_type == TokenTypes.END:
-                    value = "END"
+
+                if replace is not None:
+                    value = replace
 
                 tokens.append(Token(token_type, value))
-
                 break
         else:
             raise Exception(f"Unexpected character: {chunk[0]}")
-
-    if tokens[-1].type != TokenTypes.END:
-        tokens.append(Token(TokenTypes.END, "end"))
 
     return tokens
 
@@ -75,12 +71,9 @@ DEBUG = 0
 
 
 if __name__ == "__main__":
-    CODE = """
+    import test
 
-    url
-        .contains("test1" and "test2" or "sad")
-        .gt(12).lt(0.234)
-    asd.contains("sad")"""
-    print(CODE)
-    for x in tokenize(CODE):
-        print(x)
+    for code in [test.CODE1, test.CODE2]:
+        print("----")
+        for x in tokenize(code):
+            print(x)
