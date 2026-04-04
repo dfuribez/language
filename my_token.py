@@ -1,11 +1,11 @@
-from token_types import TokenTypes
+from token_type import TokenType
 
 
 class Token:
-    type: TokenTypes
+    type: TokenType
     value: str
 
-    def __init__(self, ttype: TokenTypes, value: str) -> None:
+    def __init__(self, ttype: TokenType, value: str) -> None:
         self.type = ttype
         self.value = value
 

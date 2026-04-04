@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class TokenTypes(Enum):
+class TokenType(Enum):
     DOT = auto()
     IDENT = auto()
     LPAREN = auto()
@@ -10,3 +10,6 @@ class TokenTypes(Enum):
     NUMBER = auto()
     COMMA = auto()
     OPERAND = auto()
+    END = auto()
+    WHITESPACE = auto()
+    NEWLINE = auto()

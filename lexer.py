@@ -1,18 +1,18 @@
 import re
 
 from my_token import Token
-from token_types import TokenTypes
+from token_type import TokenType
 
 PARAMS = [
-    (TokenTypes.NEWLINE, re.compile(r"^(\n+)", re.MULTILINE), "NEWLINE"),
-    (TokenTypes.OPERAND, re.compile(r"^(or|and)\b", re.IGNORECASE), None),
-    (TokenTypes.IDENT, re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)"), None),
-    (TokenTypes.DOT, re.compile(r"^(\.)"), "DOT"),
-    (TokenTypes.LPAREN, re.compile(r"^(\()"), None),
-    (TokenTypes.RPAREN, re.compile(r"^(\))"), None),
-    (TokenTypes.STRING, re.compile(r"^([\"'][^\"']+[\"'])"), None),
-    (TokenTypes.COMMA, re.compile(r"^(,)"), None),
-    (TokenTypes.NUMBER, re.compile(r"^(\d+(\.\d+)?)"), None),
+    (TokenType.NEWLINE, re.compile(r"^(\n+)", re.MULTILINE), "NEWLINE"),
+    (TokenType.OPERAND, re.compile(r"^(or|and)\b", re.IGNORECASE), None),
+    (TokenType.IDENT, re.compile(r"^([a-zA-Z_][a-zA-Z0-9_]*)"), None),
+    (TokenType.DOT, re.compile(r"^(\.)"), "DOT"),
+    (TokenType.LPAREN, re.compile(r"^(\()"), None),
+    (TokenType.RPAREN, re.compile(r"^(\))"), None),
+    (TokenType.STRING, re.compile(r"^([\"'][^\"']+[\"'])"), None),
+    (TokenType.COMMA, re.compile(r"^(,)"), None),
+    (TokenType.NUMBER, re.compile(r"^(\d+(\.\d+)?)"), None),
 ]
 
 
@@ -53,7 +53,7 @@ def tokenize(code: str) -> list[Token]:
                 log("[+] Matched:", token_type, " -> ", value, f"({len(value)})")
                 c += len(value)
 
-                if token_type == TokenTypes.STRING:
+                if token_type == TokenType.STRING:
                     value = value[1:-1]
 
                 if replace is not None:
@@ -63,6 +63,8 @@ def tokenize(code: str) -> list[Token]:
                 break
         else:
             raise Exception(f"Unexpected character: {chunk[0]}")
+
+    tokens.append(Token(TokenType.END, "END"))
 
     return tokens
 
